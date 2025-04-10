@@ -14,7 +14,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", async () => {
             try {
-                const response = await fetch("https://3e90-190-105-215-11.ngrok-free.app/get-datos");
+                const response = await fetch("http://localhost:8080/get-datos");
                 const data = await response.json();
                 const contenedor = document.getElementById("datos");
 
