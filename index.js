@@ -11,7 +11,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/get-datos', async (req, res) => {
     console.log('📡 Conectando a MongoDB...');
-    const client = new MongoClient('mongodb+srv://sku:sku@sku.ngbnktq.mongodb.net/?retryWrites=true&w=majority&appName=sku');
+    const client = new MongoClient('mongodb+srv://sku:sku@sku.ngbnktq.mongodb.net/sku?retryWrites=true&w=majority&appName=sku&tls=true');
+
 
     try {
         await client.connect();
