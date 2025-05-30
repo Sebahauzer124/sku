@@ -20,8 +20,9 @@ app.get('/get-datos', async (req, res) => {
         const db = client.db('sku');
         console.log("🗂️ Usando base de datos: 'sku'");
 
-        const hoja1 = await db.collection('ventas').find().toArray();
-        const hoja2 = await db.collection('stock').find().toArray();
+      const hoja1 = await db.collection('ventas').find({}).limit(1000).toArray();
+const hoja2 = await db.collection('stock').find({}).limit(1000).toArray();
+
 
         console.log(`📄 Ventas obtenidas: ${hoja1.length}`);
         console.log(`📦 Stock obtenido: ${hoja2.length}`);
