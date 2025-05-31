@@ -1,186 +1,163 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock y Vendedores</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stock y Vendedores</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="bg-light">
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", async () => {
-            try {
-                const response = await fetch("https://sku-0irz.onrender.com/get-datos");
-                const data = await response.json();
-                const contenedor = document.getElementById("datos");
+  <div class="container my-4">
+    <h1 class="mb-4 text-center">📦 Visualizador de Stock</h1>
 
-                const vendedores = Object.keys(data.vendedores);
-                const segmentos = [...new Set(Object.values(data.stockProductos).map(stock => stock.segmento))];
-                const pdvs = new Set();
-                vendedores.forEach(vendedor => {
-                    Object.keys(data.vendedores[vendedor]).forEach(cliente => {
-                        pdvs.add(cliente);
-                    });
-                });
+    <form id="filtros-form" class="row g-3 mb-4">
+      <div class="col-md-4">
+        <label for="vendedor" class="form-label">Vendedor</label>
+        <select class="form-select" id="vendedor">
+          <option value="">Todos</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="segmento" class="form-label">Segmento</label>
+        <select class="form-select" id="segmento">
+          <option value="">Todos</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="pdv" class="form-label">PDV</label>
+        <select class="form-select" id="pdv">
+          <option value="">Todos</option>
+        </select>
+      </div>
+      <div class="col-12 text-center">
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+      </div>
+    </form>
 
-                const vendedorSelect = document.getElementById("vendedor");
-                const segmentoSelect = document.getElementById("segmento");
-                const pdvSelect = document.getElementById("pdv");
+    <div id="datos"></div>
+  </div>
 
-                vendedores.forEach(vendedor => {
-                    const option = document.createElement("option");
-                    option.value = vendedor;
-                    option.textContent = vendedor;
-                    vendedorSelect.appendChild(option);
-                });
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
-                segmentos.forEach(segmento => {
-                    const option = document.createElement("option");
-                    option.value = segmento;
-                    option.textContent = segmento;
-                    segmentoSelect.appendChild(option);
-                });
-
-                pdvs.forEach(pdv => {
-                    const option = document.createElement("option");
-                    option.value = pdv;
-                    option.textContent = pdv;
-                    pdvSelect.appendChild(option);
-                });
-
-                $('#pdv').select2({
-                    placeholder: 'Seleccionar PDV',
-                    allowClear: true
-                });
-
-                const mostrarDatos = (vendedorSeleccionado = '', segmentoSeleccionado = '', pdvSeleccionado = '') => {
-                    contenedor.innerHTML = '';
-
-                    const skusComprados = new Set();
-
-// Rellenar los SKUs comprados como cadenas de texto
-Object.keys(data.vendedores).forEach(vendedor => {
-    if (vendedorSeleccionado && vendedor !== vendedorSeleccionado) return;
-
-    Object.keys(data.vendedores[vendedor]).forEach(cliente => {
-        if (pdvSeleccionado && cliente !== pdvSeleccionado) return;
-
-        data.vendedores[vendedor][cliente].forEach(producto => {
-            if (segmentoSeleccionado && producto.segmento !== segmentoSeleccionado) return;
-            skusComprados.add(String(producto.codigoProducto)); // Convertir a string
-        });
-    });
-});
-
-// Mostrar los SKUs comprados en la consola
-console.log("SKUs Comprados:", Array.from(skusComprados));
-
-// Mostramos el stock disponible con colores
-const stockDiv = document.createElement("div");
-stockDiv.innerHTML = `<h2>Stock Disponible</h2>`;
-const stockLista = document.createElement("ul");
-
-Object.keys(data.stockProductos).forEach(sku => {
-    if (segmentoSeleccionado && data.stockProductos[sku]?.segmento !== segmentoSeleccionado) return;
-    const stock = data.stockProductos[sku];
-
-    // Verificar si el SKU está en la lista de SKUs comprados (convertir sku a string)
-    const estaEnComprados = skusComprados.has(String(sku)); // Convertir a string
-
-    // Log para verificar cada SKU en stock y si está en comprados
-    console.log(`Procesando SKU: ${sku} - En comprados: ${estaEnComprados}`);
-
-    // Crear un nuevo ítem de la lista
-    const item = document.createElement("li");
-    item.classList.add("list-group-item", "mb-2", "d-flex", "align-items-center", "p-3");
-
-    // Aplicar color según si está en los comprados o no
-    if (estaEnComprados) {
-        item.style.backgroundColor = "lightgreen"; // Verde si está en comprados
-    } else {
-        item.style.backgroundColor = "lightcoral"; // Rojo si no está
+  <script>
+    function convertirFechaExcel(numeroSerie) {
+      const fechaBase = new Date(1900, 0, 1);
+      fechaBase.setDate(fechaBase.getDate() + Number(numeroSerie) - 2);
+      return fechaBase.toISOString().split('T')[0];
     }
 
-    // Crear estructura visual para cada parte del stock
-    const skuDiv = document.createElement("div");
-    skuDiv.classList.add("fw-bold", "me-2", "text-info");
-    skuDiv.innerHTML = `<i class="fas fa-tag"></i> SKU: ${sku}`;
+    document.addEventListener("DOMContentLoaded", async () => {
+      try {
+        const response = await fetch("https://sku-0irz.onrender.com/get-datos");
+        const data = await response.json();
+        const contenedor = document.getElementById("datos");
 
-    const nombreDiv = document.createElement("div");
-    nombreDiv.classList.add("text-primary", "me-2");
-    nombreDiv.innerHTML = `<i class="fas fa-cube"></i> Nombre: ${stock.nombreProducto || 'No disponible'}`;
+        const vendedores = Object.keys(data.vendedores);
+        const segmentos = [...new Set(Object.values(data.stockProductos).map(stock => stock.segmento))];
+        const pdvs = new Set();
 
-    const cantidadDiv = document.createElement("div");
-    cantidadDiv.classList.add("text-success", "me-2");
-    cantidadDiv.innerHTML = `<i class="fas fa-box"></i> Stock: ${stock.cantidadStock}`;
-
-    const segmentoDiv = document.createElement("div");
-    segmentoDiv.classList.add("text-secondary", "me-2");
-    segmentoDiv.innerHTML = `<i class="fas fa-sitemap"></i> Segmento: ${stock.segmento || 'No disponible'}`;
-
-    // Añadir elementos a la lista
-    item.appendChild(skuDiv);
-    item.appendChild(nombreDiv);
-    item.appendChild(cantidadDiv);
-    item.appendChild(segmentoDiv);
-
-    // Añadir el ítem a la lista
-    stockLista.appendChild(item);
-});
-
-stockDiv.appendChild(stockLista);
-contenedor.appendChild(stockDiv);
-
-                };
-
-                mostrarDatos();
-
-                document.getElementById("filtros-form").addEventListener("submit", (e) => {
-                    e.preventDefault();
-                    const vendedorSeleccionado = vendedorSelect.value;
-                    const segmentoSeleccionado = segmentoSelect.value;
-                    const pdvSeleccionado = pdvSelect.value;
-                    mostrarDatos(vendedorSeleccionado, segmentoSeleccionado, pdvSeleccionado);
-                });
-
-            } catch (error) {
-                console.error("Error al obtener los datos:", error);
-            }
+        vendedores.forEach(vendedor => {
+          Object.keys(data.vendedores[vendedor]).forEach(cliente => {
+            pdvs.add(cliente);
+          });
         });
-    </script>
-</head>
 
-<body>
-    <div class="container mt-5">
-        <form id="filtros-form">
-            <div class="row">
-                <div class="col-md-4">
-                    <label for="vendedor" class="form-label">Vendedor</label>
-                    <select id="vendedor" class="form-select">
-                        <option value="">Seleccione un vendedor</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label for="segmento" class="form-label">Segmento</label>
-                    <select id="segmento" class="form-select">
-                        <option value="">Seleccione un segmento</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label for="pdv" class="form-label">PDV</label>
-                    <select id="pdv" class="form-select">
-                        <option value="">Seleccione un PDV</option>
-                    </select>
-                </div>
-            </div>
-            <button type="submit" class="btn btn-primary mt-3">Filtrar</button>
-        </form>
-        <div id="datos" class="mt-4"></div>
-    </div>
+        const vendedorSelect = document.getElementById("vendedor");
+        const segmentoSelect = document.getElementById("segmento");
+        const pdvSelect = document.getElementById("pdv");
+
+        vendedores.forEach(vendedor => {
+          const option = document.createElement("option");
+          option.value = vendedor;
+          option.textContent = vendedor;
+          vendedorSelect.appendChild(option);
+        });
+
+        segmentos.forEach(segmento => {
+          const option = document.createElement("option");
+          option.value = segmento;
+          option.textContent = segmento;
+          segmentoSelect.appendChild(option);
+        });
+
+        pdvs.forEach(pdv => {
+          const option = document.createElement("option");
+          option.value = pdv;
+          option.textContent = pdv;
+          pdvSelect.appendChild(option);
+        });
+
+        $('#pdv').select2({ placeholder: 'Seleccionar PDV', allowClear: true });
+
+        const mostrarDatos = (vendedorSeleccionado = '', segmentoSeleccionado = '', pdvSeleccionado = '') => {
+          contenedor.innerHTML = '';
+          const skusComprados = new Set();
+
+          Object.keys(data.vendedores).forEach(vendedor => {
+            if (vendedorSeleccionado && vendedor !== vendedorSeleccionado) return;
+            Object.keys(data.vendedores[vendedor]).forEach(cliente => {
+              if (pdvSeleccionado && cliente !== pdvSeleccionado) return;
+              data.vendedores[vendedor][cliente].forEach(producto => {
+                if (segmentoSeleccionado && producto.segmento !== segmentoSeleccionado) return;
+                skusComprados.add(String(producto.codigoProducto));
+              });
+            });
+          });
+
+          const stockDiv = document.createElement("div");
+          stockDiv.innerHTML = `<h2 class="mt-4">📋 Stock Disponible</h2>`;
+          const stockLista = document.createElement("ul");
+          stockLista.classList.add("list-group");
+
+          Object.keys(data.stockProductos).forEach(sku => {
+            const stock = data.stockProductos[sku];
+            if (segmentoSeleccionado && stock.segmento !== segmentoSeleccionado) return;
+
+            const estaEnComprados = skusComprados.has(String(sku));
+            const item = document.createElement("li");
+            item.classList.add("list-group-item", "mb-2", "p-3");
+            item.style.backgroundColor = estaEnComprados ? "lightgreen" : "lightcoral";
+
+            let fechaFormateada = 'No disponible';
+            if (!isNaN(stock.fechaStock)) {
+              fechaFormateada = convertirFechaExcel(stock.fechaStock);
+            }
+
+            item.innerHTML = `
+              <div><strong><i class="fas fa-tag text-info"></i> SKU:</strong> ${sku}</div>
+              <div><i class="fas fa-cube text-primary"></i> <strong>Nombre:</strong> ${stock.nombreProducto || 'No disponible'}</div>
+              <div><i class="fas fa-box text-success"></i> <strong>Stock:</strong> ${stock.cantidadStock}</div>
+              <div><i class="fas fa-sitemap text-secondary"></i> <strong>Segmento:</strong> ${stock.segmento || 'No disponible'}</div>
+              <div><i class="fas fa-calendar-alt text-warning"></i> <strong>Vencimiento:</strong> ${fechaFormateada}</div>
+            `;
+
+            stockLista.appendChild(item);
+          });
+
+          stockDiv.appendChild(stockLista);
+          contenedor.appendChild(stockDiv);
+        };
+
+        mostrarDatos();
+
+        document.getElementById("filtros-form").addEventListener("submit", function (e) {
+          e.preventDefault();
+          const vendedor = vendedorSelect.value;
+          const segmento = segmentoSelect.value;
+          const pdv = pdvSelect.value;
+          mostrarDatos(vendedor, segmento, pdv);
+        });
+
+      } catch (error) {
+        console.error("❌ Error al obtener datos:", error);
+        document.getElementById("datos").innerHTML = `<div class="alert alert-danger">Error al obtener datos del servidor.</div>`;
+      }
+    });
+  </script>
+
 </body>
-
 </html>

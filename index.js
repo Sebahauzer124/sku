@@ -72,12 +72,14 @@ app.get('/get-datos', async (req, res) => {
             const nombre = row.producto;
             const segmento = row.canal;
             const cantidadStock = Number(row.stock);
+            const fechaStock = row.vencimiento;
 
             if (cantidadStock > 0 && codigo) {
                 stockProductos[codigo] = {
                     nombreProducto: nombre,
                     segmento: segmento.trim(),
-                    cantidadStock
+                    cantidadStock,
+                    fechaStock
                 };
             }
         }
