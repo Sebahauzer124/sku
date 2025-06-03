@@ -52,7 +52,7 @@
 
     document.addEventListener("DOMContentLoaded", async () => {
       try {
-        const response = await fetch("https://sku-0irz.onrender.com/get-datos");
+        const response = await fetch("http://localhost:8080/get-datos");
         const data = await response.json();
         const contenedor = document.getElementById("datos");
 
@@ -127,13 +127,20 @@
               fechaFormateada = convertirFechaExcel(stock.fechaStock);
             }
 
-            item.innerHTML = `
-              <div><strong><i class="fas fa-tag text-info"></i> SKU:</strong> ${sku}</div>
-              <div><i class="fas fa-cube text-primary"></i> <strong>Nombre:</strong> ${stock.nombreProducto || 'No disponible'}</div>
-              <div><i class="fas fa-box text-success"></i> <strong>Stock:</strong> ${stock.cantidadStock}</div>
-              <div><i class="fas fa-sitemap text-secondary"></i> <strong>Segmento:</strong> ${stock.segmento || 'No disponible'}</div>
-              <div><i class="fas fa-calendar-alt text-warning"></i> <strong>Vencimiento:</strong> ${fechaFormateada}</div>
-            `;
+ item.innerHTML = `
+  <div><strong><i class="fas fa-tag text-info"></i> SKU:</strong> ${sku}</div>
+  <div><i class="fas fa-cube text-primary"></i> <strong>Nombre:</strong> ${stock.nombreProducto || 'No disponible'}</div>
+  <div><i class="fas fa-box text-success"></i> <strong>Stock:</strong> ${stock.cantidadStock}</div>
+  <div><i class="fas fa-sitemap text-secondary"></i> <strong>Segmento:</strong> ${stock.segmento || 'No disponible'}</div>
+  <div><i class="fas fa-dollar-sign text-success"></i> <strong>Precio Min:</strong> ${
+    !isNaN(Number(stock.ptcmin)) ? Number(stock.ptcmin).toFixed(2) : 'No disponible'
+  }</div>
+  <div><i class="fas fa-dollar-sign text-danger"></i> <strong>Precio Max:</strong> ${
+    !isNaN(Number(stock.ptcmax)) ? Number(stock.ptcmax).toFixed(2) : 'No disponible'
+  }</div>
+  <div><i class="fas fa-calendar-alt text-warning"></i> <strong>Vencimiento:</strong> ${fechaFormateada}</div>
+`;
+
 
             stockLista.appendChild(item);
           });

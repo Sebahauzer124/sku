@@ -73,13 +73,17 @@ app.get('/get-datos', async (req, res) => {
             const segmento = row.canal;
             const cantidadStock = Number(row.stock);
             const fechaStock = row.vencimiento;
+            const ptcmax= row.ptcmax;
+            const ptcmin=row.ptcmin;
 
             if (cantidadStock > 0 && codigo) {
                 stockProductos[codigo] = {
                     nombreProducto: nombre,
                     segmento: segmento.trim(),
                     cantidadStock,
-                    fechaStock
+                    fechaStock,
+                    ptcmax,
+                    ptcmin
                 };
             }
         }
