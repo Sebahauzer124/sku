@@ -132,10 +132,10 @@
   <div><i class="fas fa-cube text-primary"></i> <strong>Nombre:</strong> ${stock.nombreProducto || 'No disponible'}</div>
   <div><i class="fas fa-box text-success"></i> <strong>Stock:</strong> ${stock.cantidadStock}</div>
   <div><i class="fas fa-sitemap text-secondary"></i> <strong>Segmento:</strong> ${stock.segmento || 'No disponible'}</div>
-  <div><i class="fas fa-dollar-sign text-success"></i> <strong>Precio Min:</strong> ${
+  <div><i class="fas fa-dollar-sign text-success"></i> <strong>PTC Min:</strong> ${
     !isNaN(Number(stock.ptcmin)) ? Number(stock.ptcmin).toFixed(2) : 'No disponible'
   }</div>
-  <div><i class="fas fa-dollar-sign text-danger"></i> <strong>Precio Max:</strong> ${
+  <div><i class="fas fa-dollar-sign text-danger"></i> <strong>PTC Max:</strong> ${
     !isNaN(Number(stock.ptcmax)) ? Number(stock.ptcmax).toFixed(2) : 'No disponible'
   }</div>
   <div><i class="fas fa-calendar-alt text-warning"></i> <strong>Vencimiento:</strong> ${fechaFormateada}</div>
